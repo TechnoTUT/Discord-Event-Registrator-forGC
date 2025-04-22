@@ -1,5 +1,5 @@
 import discord
-from client import Client
+from lib.client import Client
 import os
 import dotenv
 
