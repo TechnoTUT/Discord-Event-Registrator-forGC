@@ -5,16 +5,16 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-from datastructure.calendarEvent import CalendarEvent
+from lib.datastructure.calendarEvent import CalendarEvent
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 import dotenv
 import os
-from zoneinfo import ZoneInfo
 
 from returns.result import Result, Failure, Success
+from .typedef.gapi_calendar_v3_structs import Event
 
 dotenv.load_dotenv()
 
@@ -46,7 +46,7 @@ class GoogleCalendar:
 
     def createEvent(
         self, title: str, start: datetime, end: datetime
-    ) -> Result[None, str]:
+    ) -> Result[Event, str]:
         try:
             events_result = (
                 self.service.events()
@@ -63,4 +63,4 @@ class GoogleCalendar:
         except HttpError as e:
             return Failure(e.reason)
 
-        return Success(None)
+        return Success(events_result)

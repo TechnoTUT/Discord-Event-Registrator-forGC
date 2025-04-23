@@ -40,7 +40,10 @@ class Client(discord.Client):
             title="新しいイベントを検知しました！",
             description=f"イベント名: {name}",
             color=Client.EMBED_COLOR_INFO,
-            param_dict={"開始時間": start, "終了時間": end},
+            param_dict={
+                "開始時間": start.strftime("%Y-%m-%d %H:%M"),
+                "終了時間": end.strftime("%Y-%m-%d %H:%M"),
+            },
         )
 
         match self.gc.createEvent(title=name, start=start, end=end):
@@ -50,6 +53,7 @@ class Client(discord.Client):
                     description=None,
                     color=Client.EMBED_COLOR_SUCC,
                 )
+
             case Failure(err):
                 await self.log_send_embed(
                     title="Googleカレンダーへの登録に失敗しました...",
@@ -70,8 +74,10 @@ class Client(discord.Client):
         print(message)
 
     async def log_send_embed(
-        self, title, description, color, param_dict: dict[str, str] = {}
+        self, title, description, color, param_dict: dict[str, str] | None = None
     ):
+        param_dict = {} if param_dict is None else param_dict
+
         embed = discord.Embed(title=title, color=color, description=description)
 
         for key, value in param_dict.items():
