@@ -9,11 +9,14 @@ dependencies = [
     "google-api-python-client>=2.167.0",
     "google-auth-httplib2>=0.2.0",
     "google-auth-oauthlib>=1.2.2",
+    "pydantic>=2.11.3",
     "python-dotenv>=1.1.0",
     "returns>=0.25.0",
 ]
 
 [dependency-groups]
-dev = [
-    "google-api-python-client-stubs>=1.29.0",
-]
+dev = ["google-api-python-client-stubs>=1.29.0"]
+
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
