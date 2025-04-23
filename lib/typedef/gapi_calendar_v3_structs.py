@@ -5,7 +5,6 @@ import typing
 _list = list
 
 
-@typing.type_check_only
 class AclRule:
     etag: str
     id: str
@@ -14,7 +13,6 @@ class AclRule:
     scope: dict[str, typing.Any]
 
 
-@typing.type_check_only
 class Acl:
     etag: str
     items: _list[AclRule]
@@ -23,12 +21,10 @@ class Acl:
     nextSyncToken: str
 
 
-@typing.type_check_only
 class ConferenceProperties:
     allowedConferenceSolutionTypes: _list[str]
 
 
-@typing.type_check_only
 class Calendar:
     conferenceProperties: ConferenceProperties
     description: str
@@ -40,13 +36,11 @@ class Calendar:
     timeZone: str
 
 
-@typing.type_check_only
 class EventReminder:
     method: str
     minutes: int
 
 
-@typing.type_check_only
 class CalendarListEntry:
     accessRole: str
     backgroundColor: str
@@ -69,7 +63,6 @@ class CalendarListEntry:
     timeZone: str
 
 
-@typing.type_check_only
 class CalendarList:
     etag: str
     items: _list[CalendarListEntry]
@@ -78,13 +71,11 @@ class CalendarList:
     nextSyncToken: str
 
 
-@typing.type_check_only
 class CalendarNotification:
     method: str
     type: str
 
 
-@typing.type_check_only
 class Channel:
     address: str
     expiration: str
@@ -98,13 +89,11 @@ class Channel:
     type: str
 
 
-@typing.type_check_only
 class ColorDefinition:
     background: str
     foreground: str
 
 
-@typing.type_check_only
 class Colors:
     calendar: dict[str, typing.Any]
     event: dict[str, typing.Any]
@@ -112,41 +101,34 @@ class Colors:
     updated: str
 
 
-@typing.type_check_only
 class ConferenceParametersAddOnParameters:
     parameters: dict[str, typing.Any]
 
 
-@typing.type_check_only
 class ConferenceParameters:
     addOnParameters: ConferenceParametersAddOnParameters
 
 
-@typing.type_check_only
 class ConferenceRequestStatus:
     statusCode: str
 
 
-@typing.type_check_only
 class ConferenceSolutionKey:
     type: str
 
 
-@typing.type_check_only
 class ConferenceSolution:
     iconUri: str
     key: ConferenceSolutionKey
     name: str
 
 
-@typing.type_check_only
 class CreateConferenceRequest:
     conferenceSolutionKey: ConferenceSolutionKey
     requestId: str
     status: ConferenceRequestStatus
 
 
-@typing.type_check_only
 class EntryPoint:
     accessCode: str
     entryPointFeatures: _list[str]
@@ -160,7 +142,6 @@ class EntryPoint:
     uri: str
 
 
-@typing.type_check_only
 class ConferenceData:
     conferenceId: str
     conferenceSolution: ConferenceSolution
@@ -171,13 +152,11 @@ class ConferenceData:
     signature: str
 
 
-@typing.type_check_only
 class Error:
     domain: str
     reason: str
 
 
-@typing.type_check_only
 class EventAttachment:
     fileId: str
     fileUrl: str
@@ -186,7 +165,6 @@ class EventAttachment:
     title: str
 
 
-@typing.type_check_only
 class EventAttendee:
     additionalGuests: int
     comment: str
@@ -200,34 +178,29 @@ class EventAttendee:
     self: bool
 
 
-@typing.type_check_only
 class EventBirthdayProperties:
     contact: str
     customTypeName: str
     type: str
 
 
-@typing.type_check_only
 class EventDateTime:
     date: str
     dateTime: str
     timeZone: str
 
 
-@typing.type_check_only
 class EventFocusTimeProperties:
     autoDeclineMode: str
     chatStatus: str
     declineMessage: str
 
 
-@typing.type_check_only
 class EventOutOfOfficeProperties:
     autoDeclineMode: str
     declineMessage: str
 
 
-@typing.type_check_only
 class EventWorkingLocationProperties:
     customLocation: dict[str, typing.Any]
     homeOffice: typing.Any
@@ -235,7 +208,6 @@ class EventWorkingLocationProperties:
     type: str
 
 
-@typing.type_check_only
 class Event:
     anyoneCanAddSelf: bool
     attachments: _list[EventAttachment]
@@ -282,7 +254,6 @@ class Event:
     workingLocationProperties: EventWorkingLocationProperties
 
 
-@typing.type_check_only
 class Events:
     accessRole: str
     defaultReminders: _list[EventReminder]
@@ -297,18 +268,15 @@ class Events:
     updated: str
 
 
-@typing.type_check_only
 class FreeBusyGroup:
     calendars: _list[str]
     errors: _list[Error]
 
 
-@typing.type_check_only
 class FreeBusyRequestItem:
     id: str
 
 
-@typing.type_check_only
 class FreeBusyRequest:
     calendarExpansionMax: int
     groupExpansionMax: int
@@ -318,7 +286,6 @@ class FreeBusyRequest:
     timeZone: str
 
 
-@typing.type_check_only
 class FreeBusyResponse:
     calendars: dict[str, typing.Any]
     groups: dict[str, typing.Any]
@@ -327,7 +294,6 @@ class FreeBusyResponse:
     timeMin: str
 
 
-@typing.type_check_only
 class Setting:
     etag: str
     id: str
@@ -335,7 +301,6 @@ class Setting:
     value: str
 
 
-@typing.type_check_only
 class Settings:
     etag: str
     items: _list[Setting]
@@ -344,13 +309,11 @@ class Settings:
     nextSyncToken: str
 
 
-@typing.type_check_only
 class TimePeriod:
     end: str
     start: str
 
 
-@typing.type_check_only
 class FreeBusyCalendar:
     busy: _list[TimePeriod]
     errors: _list[Error]
