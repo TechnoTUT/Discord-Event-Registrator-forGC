@@ -23,8 +23,12 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 class GoogleCalendar:
-    def __init__(self):
+    def __init__(self, unuse: bool = False):
         self.creds = None
+        self.unuse = unuse
+        if self.unuse:
+            return
+
         if os.path.exists("./.local/token.json"):
             self.creds = Credentials.from_authorized_user_file(
                 "./.local/token.json", SCOPES
@@ -45,18 +49,31 @@ class GoogleCalendar:
         self.service = build("calendar", "v3", credentials=self.creds)
 
     def createEvent(
-        self, title: str, start: datetime, end: datetime
+        self,
+        title: str,
+        description: str,
+        start: datetime,
+        end: datetime,
+        location: str,
     ) -> Result[Event, str]:
+        body = CalendarEvent.create(
+            title=title,
+            start=start,
+            end=end,
+            description=description,
+            location=location,
+        )
+
+        if self.unuse:
+            print(f"Create Event, body: {body}")
+            return Success(None)
+
         try:
             events_result = (
                 self.service.events()
                 .insert(
                     calendarId=os.getenv("CALENDAR_ID"),
-                    body=CalendarEvent.create(
-                        title=title,
-                        start=start,
-                        end=end,
-                    ),
+                    body=body,
                 )
                 .execute()
             )
