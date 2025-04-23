@@ -8,7 +8,7 @@ class CalendarEvent:
         self.end = end
 
     @staticmethod
-    def create(title, start: datetime, end: datetime):
+    def create(title, start: datetime, end: datetime, description: str, location: str):
         return {
             "start": {
                 "dateTime": f"{start.isoformat()}",
@@ -17,6 +17,8 @@ class CalendarEvent:
                 "dateTime": f"{end.isoformat()}",
             },
             "summary": title,
+            "description": description,
+            "location": location,
         }
 
     def obj(self):

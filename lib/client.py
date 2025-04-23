@@ -1,10 +1,14 @@
+import os
+import datetime
+
 import discord
 from discord.message import Message
 from discord.scheduled_event import ScheduledEvent
-import os
-from lib.GoogleCalendarAPIWrapper import GoogleCalendar
 
 from returns.result import Success, Failure
+
+from lib.GoogleCalendarAPIWrapper import GoogleCalendar
+from lib.util import debugging, Optional_or
 
 
 class Client(discord.Client):
@@ -13,8 +17,9 @@ class Client(discord.Client):
     EMBED_COLOR_WARN = 0xFFD700
     EMBED_COLOR_CRIT = 0xFF6347
 
-    def __init__(self, *, intents, **options):
+    def __init__(self, *, intents, unuse_gcapi: bool = True, **options):
         self.ch = None
+        self.unuse_gcapi = unuse_gcapi
         self.gc = GoogleCalendar()
         super().__init__(intents=intents, **options)
 
@@ -30,28 +35,36 @@ class Client(discord.Client):
     async def on_ready(self):
         self.ch = self.get_channel(int(os.getenv("LOG_CH_ID")))
         print(self.ch)
-        await self.log_send("Ready!")
+        # await self.log_send("Ready!")
+        print("Ready!")
 
     async def on_scheduled_event_create(self, event: ScheduledEvent):
         name = event.name
         start = event.start_time
-        end = event.end_time
+        end = Optional_or(event.end_time, default=start + datetime.timedelta(hours=1))
+        location = Optional_or(event.location, "不明")
+        description = Optional_or(event.description, "不明")
+
         await self.log_send_embed(
-            title="新しいイベントを検知しました！",
-            description=f"イベント名: {name}",
+            title=f"新しいイベント **{name}** を検知しました！",
+            description=f"イベント概要: {description}",
             color=Client.EMBED_COLOR_INFO,
             param_dict={
                 "開始時間": start.strftime("%Y-%m-%d %H:%M"),
                 "終了時間": end.strftime("%Y-%m-%d %H:%M"),
+                "開催地": location,
             },
         )
 
-        match self.gc.createEvent(title=name, start=start, end=end):
+        match self.gc.createEvent(
+            title=name, description=description, location=location, start=start, end=end
+        ):
             case Success(val):
                 await self.log_send_embed(
                     title="Googleカレンダーに登録しました!",
-                    description=None,
+                    description=val["htmlLink"],
                     color=Client.EMBED_COLOR_SUCC,
+                    param_dict={"Summary": val["summary"], "EventID": val["id"]},
                 )
 
             case Failure(err):
