@@ -81,3 +81,39 @@ class GoogleCalendar:
             return Failure(e.reason)
 
         return Success(events_result)
+
+    def updateEvent(
+        self,
+        gcal_ev_id: str,
+        title: str,
+        description: str,
+        start: datetime,
+        end: datetime,
+        location: str,
+    ) -> Result[Event, str]:
+        body = CalendarEvent.create(
+            title=title,
+            start=start,
+            end=end,
+            description=description,
+            location=location,
+        )
+
+        if self.unuse:
+            print(f"Create Event, body: {body}")
+            return Success(None)
+
+        try:
+            events_result = (
+                self.service.events()
+                .update(
+                    calendarId=os.getenv("CALENDAR_ID"),
+                    eventId=gcal_ev_id,
+                    body=body,
+                )
+                .execute()
+            )
+        except HttpError as e:
+            return Failure(e.reason)
+
+        return Success(events_result)
