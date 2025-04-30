@@ -117,3 +117,13 @@ class GoogleCalendar:
             return Failure(e.reason)
 
         return Success(events_result)
+
+    def deleteEvent(self, ev_id: str) -> Result[None, str]:
+        try:
+            self.service.events().delete(
+                calendarId=os.getenv("CALENDAR_ID"), eventId=ev_id, sendUpdates="none"
+            ).execute()
+        except HttpError as e:
+            return Failure(e.reason)
+
+        return Success(None)

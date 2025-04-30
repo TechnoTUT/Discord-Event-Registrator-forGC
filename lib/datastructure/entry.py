@@ -68,6 +68,18 @@ class RegisteredEvents:
         if event.gcalEventID is not None:
             self.__gID_dID_dict[event.gcalEventID] = event.discordEventID
 
+        self.dump()
+
+    def pop(self, eventID: str):
+        removed_event = self.__dID_event_dict.pop(eventID)
+
+        if removed_event.gcalEventID is not None:
+            self.__gID_dID_dict.pop(removed_event.gcalEventID)
+
+        self.dump()
+
+        return removed_event
+
     def update_gcalEventID(self, discord_event_id: str, gcal_event_id: str):
         self.__gID_dID_dict[gcal_event_id] = discord_event_id
         self.__dID_event_dict[discord_event_id].updateInfo(gcalEventID=gcal_event_id)
@@ -108,6 +120,14 @@ class RegisteredEvents:
 
         return self.__dID_event_dict[event.discordEventID].eventInfo != event.eventInfo
 
+    def is_expired_event(self, event: RegisteredEventEntry | ScheduledEvent) -> bool:
+        if isinstance(event, ScheduledEvent):
+            event = RegisteredEventEntry.parse(
+                discord_event_id=event.id, event=CalendarEvent.parse(event)
+            )
+
+        return self.__dID_event_dict[event.discordEventID].eventInfo.is_expire()
+
     def dump(self):
         with Path(self.db_path).open("w") as fp:
             fp.write(
@@ -115,3 +135,9 @@ class RegisteredEvents:
                     indent=4
                 )
             )
+
+    def __iter__(self):
+        return self.__dID_event_dict.__iter__()
+
+    def get_items_iter(self):
+        return self.__dID_event_dict.items()

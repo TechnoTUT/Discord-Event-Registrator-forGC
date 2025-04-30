@@ -2,6 +2,7 @@ from pydantic import BaseModel, field_serializer
 from datetime import datetime, timedelta
 from discord.scheduled_event import ScheduledEvent
 from lib.util import Optional_or
+from zoneinfo import ZoneInfo
 
 
 class CalendarEvent(BaseModel):
@@ -53,3 +54,6 @@ class CalendarEvent(BaseModel):
             "description": self.description,
             "location": self.location,
         }
+
+    def is_expire(self):
+        return self.end < datetime.now(tz=ZoneInfo("Asia/Tokyo"))

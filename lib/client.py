@@ -10,7 +10,7 @@ from returns.result import Success, Failure, Result
 
 from lib.GoogleCalendarAPIWrapper import GoogleCalendar
 from lib.util import debugging, Optional_or, event_diff
-from lib.datastructure.entry import RegisteredEvents
+from lib.datastructure.entry import RegisteredEvents, RegisteredEventEntry
 from lib.datastructure.calendarEvent import CalendarEvent
 
 
@@ -100,11 +100,13 @@ class Client(discord.Client):
 
         return Failure("")
 
-    async def update_event_db(self, before: CalendarEvent, after: ScheduledEvent):
+    async def update_event_db(self, before: ScheduledEvent, after: ScheduledEvent):
         await self.log_send_embed(
             title=f"イベント {after.id} の更新を検知しました！",
             description="",
-            param_dict=event_diff(before, CalendarEvent.parse(after)),
+            param_dict=event_diff(
+                CalendarEvent.parse(before), CalendarEvent.parse(after)
+            ),
             color=Client.EMBED_COLOR_INFO,
         )
 
@@ -146,6 +148,53 @@ class Client(discord.Client):
 
         return Failure("")
 
+    async def remove_event_db(self, event: ScheduledEvent):
+        await self.log_send_embed(
+            title="イベントの削除を検知しました!",
+            description=f"イベント名: {event.name}",
+            color=Client.EMBED_COLOR_SUCC,
+            param_dict={
+                "ID": event.id,
+                "開始時刻": event.start_time.strftime("%Y-%m-%d %H:%M"),
+                "終了時刻": event.end_time.strftime("%Y-%m-%d %H:%M"),
+            },
+        )
+        return self.event_db.pop(event.id)
+
+    async def remove_event_db_from_id(self, id: str):
+        event = self.event_db.pop(id)
+        await self.log_send_embed(
+            title="イベントの削除を検知しました!",
+            description=f"イベント名: {event.eventInfo.title}",
+            color=Client.EMBED_COLOR_SUCC,
+            param_dict={
+                "ID": event.discordEventID,
+                "開始時刻": event.eventInfo.start.strftime("%Y-%m-%d %H:%M"),
+                "終了時刻": event.eventInfo.end.strftime("%Y-%m-%d %H:%M"),
+            },
+        )
+        return event
+
+    async def remove_event_gcal(
+        self, removed_event: RegisteredEventEntry
+    ) -> Result[None, str]:
+        match ret := self.gc.deleteEvent(ev_id=removed_event.gcalEventID):
+            case Success(_):
+                await self.log_send_embed(
+                    title="Googleカレンダーからイベントを削除しました!",
+                    description=f"削除したイベント: {removed_event.eventInfo.title}",
+                    color=Client.EMBED_COLOR_SUCC,
+                    param_dict={"EventID": removed_event.gcalEventID},
+                )
+            case Failure(err):
+                await self.log_send_embed(
+                    title="Googleカレンダーの更新に失敗しました...",
+                    description=err,
+                    color=Client.EMBED_COLOR_CRIT,
+                )
+
+        return ret
+
     async def on_message(self, message: Message):
         if message.author == self.user:
             return
@@ -163,8 +212,10 @@ class Client(discord.Client):
 
         # 未登録のイベントがないかチェック
         # TODO: get_guilds関数を使って丁寧な実装をする
+        d_event_id_list = set()
         for event in self.guilds[0].scheduled_events:
             print(event)
+            d_event_id_list.add(event.id)
 
             # DBに登録されていないなら、DBにに登録
             if not self.event_db.is_event_exist(discord_event_id=event.id):
@@ -174,7 +225,7 @@ class Client(discord.Client):
             if not self.event_db.is_gcal_registered_event(discord_event_id=event.id):
                 print("カレンダーに登録されていません!")
                 await self.register_event_gcal(event=event)
-
+            # イベント内容が変更されていたら、更新
             if self.event_db.is_need_update_registered_event(event=event):
                 print("イベントの変更を検知しました!")
                 await self.update_event_db(
@@ -182,6 +233,23 @@ class Client(discord.Client):
                     event,
                 )
                 await self.update_event_gcal(event)
+
+            # イベントが終了していたら、DBから削除
+            if self.event_db.is_expired_event(event=event):
+                print("期限切れのイベントをDBから削除しました!")
+                await self.remove_event_db(event)
+
+        # Discordから削除されたイベントがないかチェック
+        for dID, event in list(self.event_db.get_items_iter()):
+            # DBにはあるがdiscordのイベントには存在しないとき
+            if dID not in d_event_id_list:
+                print("Discord側に見つからないDBのイベントを削除しました!")
+                # DBから削除
+                removed_event = await self.remove_event_db_from_id(dID)
+                # 期限切れでないならGoogle Calendarからも削除
+                if not removed_event.eventInfo.is_expire():
+                    print("Google Calendarからも削除しました!")
+                    await self.remove_event_gcal(removed_event)
 
         self.event_db.dump()
 
@@ -192,11 +260,18 @@ class Client(discord.Client):
     async def on_scheduled_event_update(
         self, before: ScheduledEvent, after: ScheduledEvent
     ):
-        await self.update_event_db(after)
+        if (before.id == after.id) and (before.status != after.status):
+            print(f"イベント: {before.name} が {after.status.name} になりました")
+            if after.status.name == "completed":
+                await self.remove_event_db(after)
+
+        await self.update_event_db(before, after)
         await self.update_event_gcal(update_event=after)
 
     async def on_scheduled_event_delete(self, event: ScheduledEvent):
-        await self.log_send("Delete Event!")
+        removed_event = await self.remove_event_db(event)
+        if not removed_event.eventInfo.is_expire():
+            await self.remove_event_gcal(removed_event)
 
     async def log_send(self, message):
         await self.ch.send(message)
