@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import threading
 
 
 class RegisteredEventEntry(BaseModel):
@@ -52,6 +53,8 @@ class RegisteredEvents:
         self.__gID_dID_dict: dict[str, str] = {}
 
         self.db_path = path
+
+        self.lock = threading.Lock()
 
         if Path(self.db_path).exists():
             with Path(self.db_path).open("r") as fp:
@@ -129,12 +132,13 @@ class RegisteredEvents:
         return self.__dID_event_dict[event.discordEventID].eventInfo.is_expire()
 
     def dump(self):
-        with Path(self.db_path).open("w") as fp:
-            fp.write(
-                RootModel[list](self.__dID_event_dict.values()).model_dump_json(
-                    indent=4
+        with self.lock:
+            with Path(self.db_path).open("w") as fp:
+                fp.write(
+                    RootModel[list](self.__dID_event_dict.values()).model_dump_json(
+                        indent=4
+                    )
                 )
-            )
 
     def __iter__(self):
         return self.__dID_event_dict.__iter__()
