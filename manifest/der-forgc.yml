@@ -30,7 +30,13 @@ spec:
         - name: env
           secret:
             secretName: der-env
+            items:
+              - key: der-env
+                path: ".env"
         - name: credentials
           secret:
             secretName: der-credentials
+            items:
+              - key: der-credentials
+                path: "credentials.json"
       restartPolicy: Always

@@ -4,8 +4,8 @@ ENV TZ=Asia/Tokyo
 RUN apt update
 RUN apt install ca-certificates -y
 
-COPY . /der/
-WORKDIR /der
+COPY . /usr/src
+WORKDIR /usr/src
 
 RUN uv sync
 
