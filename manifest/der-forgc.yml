@@ -19,20 +19,42 @@ spec:
         - name: event-registration-bot
           image: ghcr.io/technotut/discord-event-registrator-forgc:master
           imagePullPolicy: Always
+          env:
+            - name: CALENDAR_ID
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: CALENDAR_ID
+            - name: LOG_CH_ID
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: LOG_CH_ID
+            - name: OBSERVE_CH_ID
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: OBSERVE_CH_ID
+            - name: GUILD_ID
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: GUILD_ID
+            - name: EVENT_DB_PATH
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: EVENT_DB_PATH
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: DISCORD_TOKEN
           volumeMounts:
-            - name: env
-              mountPath: "/usr/src"
-              readOnly: true
             - name: credentials
               mountPath: "/usr/src/.local"
               readOnly: true
       volumes:
-        - name: env
-          secret:
-            secretName: der-env
-            items:
-              - key: .env
-                path: .env
         - name: credentials
           secret:
             secretName: der-credentials
