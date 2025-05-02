@@ -4,7 +4,7 @@ metadata:
   name: der-forgc
   labels:
     app: der-forgc-bot
-  namespace: der
+  namespace: der-forgc
 spec:
   selector:
     matchLabels:
