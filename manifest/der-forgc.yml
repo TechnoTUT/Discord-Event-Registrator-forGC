@@ -19,4 +19,18 @@ spec:
         - name: event-registration-bot
           image: ghcr.io/technotut/discord-event-registrator-forgc:master
           imagePullPolicy: Always
+          volumeMounts:
+            - name: env
+              mountPath: "/usr/src"
+              readOnly: true
+            - name: credentials
+              mountPath: "/usr/src/.local"
+              readOnly: true
+      volumes:
+        - name: env
+          secret:
+            secretName: der-env
+        - name: credentials
+          secret:
+            secretName: der-credentials
       restartPolicy: Always
