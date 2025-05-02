@@ -5,7 +5,6 @@ import dotenv
 
 dotenv.load_dotenv()
 
-
 intents = discord.Intents.default()
 intents.guild_scheduled_events = True
 intents.messages = True

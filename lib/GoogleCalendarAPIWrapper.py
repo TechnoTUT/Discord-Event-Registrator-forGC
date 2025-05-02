@@ -1,9 +1,8 @@
 from datetime import datetime
 import os.path
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2 import service_account
+
 
 from lib.datastructure.calendarEvent import CalendarEvent
 
@@ -29,24 +28,13 @@ class GoogleCalendar:
         if self.unuse:
             return
 
-        if os.path.exists("./.local/token.json"):
-            self.creds = Credentials.from_authorized_user_file(
-                "./.local/token.json", SCOPES
-            )
-        # If there are no (valid) credentials available, let the user log in.
-        if not self.creds or not self.creds.valid:
-            if self.creds and self.creds.expired and self.creds.refresh_token:
-                self.creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    "./.local/credentials.json", SCOPES
-                )
-                self.creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open("./.local/token.json", "w") as token:
-                token.write(self.creds.to_json())
+        credentials = service_account.Credentials.from_service_account_file(
+            "./.local/credentials.json", scopes=SCOPES
+        )
 
-        self.service = build("calendar", "v3", credentials=self.creds)
+        delegated_credentials = credentials.with_subject(os.getenv("ROOT_ACCOUNT"))
+
+        self.service = build("calendar", "v3", credentials=delegated_credentials)
 
     def createEvent(
         self,
@@ -78,6 +66,7 @@ class GoogleCalendar:
                 .execute()
             )
         except HttpError as e:
+            print(e)
             return Failure(e.reason)
 
         return Success(events_result)

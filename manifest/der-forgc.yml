@@ -50,6 +50,11 @@ spec:
                 secretKeyRef:
                   name: der-env-split
                   key: DISCORD_TOKEN
+            - name: ROOT_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: der-env-split
+                  key: ROOT_ACCOUNT
           volumeMounts:
             - name: credentials
               mountPath: "/usr/src/.local"
