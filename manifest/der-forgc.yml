@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: event-registrator-bot
+  name: event-registration-bot
   labels:
-    app: event-registrator-bot
-  namespace: event-registrator-bot
+    app: event-registration-bot
+  namespace: discord-bot
 spec:
   selector:
     matchLabels:
-      app: event-registrator-bot
+      app: event-registration-bot
   replicas: 1
   template:
     metadata:
       labels:
-        app: event-registrator-bot
+        app: event-registration-bot
     spec:
       containers:
-        - name: event-registrator-bot
-          image: ghcr.io/technotut/Discord-Event-Registrator-forGC:main
+        - name: event-registration-bot
+          image: ghcr.io/technotut/Discord-Event-registration-forGC:main
           imagePullPolicy: Always
           resources:
             limits:

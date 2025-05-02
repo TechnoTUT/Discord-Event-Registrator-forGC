@@ -1,6 +1,6 @@
 services:
   bot:
-    container_name: event-registrator-bot
+    container_name: event-registration-bot
     image: ghcr.io/astral-sh/uv:debian-slim
     build: .
     volumes:
