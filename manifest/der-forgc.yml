@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: event-registration-bot
-          image: ghcr.io/technotut/discord-event-registration-forgc.git:main
+          image: ghcr.io/technotut/discord-event-registrator-forgc:master
           imagePullPolicy: Always
       restartPolicy: Always
