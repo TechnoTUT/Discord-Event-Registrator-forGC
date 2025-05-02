@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: der-forgc
+  name: event-registrator-bot
   labels:
-    app: der-forgc-bot
-  namespace: der-forgc
+    app: event-registrator-bot
+  namespace: event-registrator-bot
 spec:
   selector:
     matchLabels:
-      app: der-forgc-bot
+      app: event-registrator-bot
   replicas: 1
   template:
     metadata:
       labels:
-        app: der-forgc-bot
+        app: event-registrator-bot
     spec:
       containers:
-        - name: der-forgc-bot
+        - name: event-registrator-bot
           image: ghcr.io/technotut/Discord-Event-Registrator-forGC:main
           imagePullPolicy: Always
           resources:
