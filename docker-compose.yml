@@ -1,0 +1,14 @@
+services:
+  bot:
+    container_name: der-forgc
+    image: ghcr.io/astral-sh/uv:debian-slim
+    build: .
+    volumes:
+      - .:/usr/src:rw
+    working_dir: /usr/src
+    command: >
+      sh -c "
+      uv sync;
+      uv run python main.py;
+      "
+    tty: true
