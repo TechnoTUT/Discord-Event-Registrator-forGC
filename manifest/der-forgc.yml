@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: der-forgc
+  labels:
+    app: der-forgc-bot
+  namespace: der
+spec:
+  selector:
+    matchLabels:
+      app: der-forgc-bot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: der-forgc-bot
+    spec:
+      containers:
+        - name: der-forgc-bot
+          image: ghcr.io/technotut/Discord-Event-Registrator-forGC:main
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 1
+              memory: 256Mi
+      restartPolicy: Always
